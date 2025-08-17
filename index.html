@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Δυναμικό Σχολικό Ημερολόγιο</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: auto;
+            border: 3px solid #003366;
+            padding: 10px;
+            background-color: #fff;
+        }
+
+        h1 {
+            background-color: #003366;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            margin: 0 0 5px 0;
+            font-size: 1.8em;
+            letter-spacing: 2px;
+        }
+        
+        .credit-line {
+            text-align: center;
+            font-style: italic;
+            color: #555;
+            margin: 0 0 15px 0;
+            font-size: 0.9em;
+        }
+
+        .header-controls {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .header-controls label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        #year-select {
+            padding: 5px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 10px;
+            flex: 3;
+            min-width: 70%;
+        }
+
+        .month-container {
+            border: 1px solid #666;
+        }
+
+        .month-table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 0.85em;
+            text-align: center;
+        }
+
+        .month-table caption {
+            background-color: #005a9c;
+            color: white;
+            font-weight: bold;
+            padding: 5px;
+            font-size: 1.1em;
+        }
+
+        .month-table th {
+            background-color: #bde0fe;
+            padding: 5px;
+            border: 1px solid #999;
+            font-weight: bold;
+        }
+
+        .month-table td {
+            border: 1px solid #999;
+            padding: 5px 2px;
+            height: 28px;
+            vertical-align: middle;
+        }
+        
+        td.empty {
+            background-color: #f8f8f8;
+        }
+
+        td.saturday {
+            background-color: #f2f2f2;
+        }
+
+        td.sunday {
+            /* Style is handled by adding the .saturday class */
+        }
+        
+        td.holiday {
+            background-color: #ff0000;
+            color: white;
+            font-weight: bold;
+        }
+
+        td.special-day {
+            background-color: #228B22;
+            color: white;
+        }
+
+        td.note-day {
+            background-color: #4169E1;
+            color: white;
+        }
+
+        .sidebar {
+            flex: 1;
+            min-width: 280px;
+            border: 1px solid #666;
+            padding: 10px;
+            font-size: 0.8em;
+            line-height: 1.4;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-content {
+            flex-grow: 1;
+        }
+
+        .sidebar-legend {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+        
+        .sidebar-legend .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-legend .color-box {
+            width: 15px;
+            height: 15px;
+            border: 1px solid #000;
+            flex-shrink: 0;
+        }
+        
+        .sidebar p {
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .color-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-right: 8px;
+        }
+        
+        .dot-red, .box-red { background-color: #ff0000; }
+        .dot-forest-green, .box-forest-green { background-color: #228B22; }
+        .dot-royal-blue, .box-royal-blue { background-color: #4169E1; }
+
+        .footer {
+            margin-top: 10px;
+            border: 1px solid #666;
+            padding: 15px;
+            font-size: 1.1em;
+            text-align: center;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        /* NEW: Flashing text animation */
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+
+        .flashing-text {
+            animation: flash 2s infinite;
+            font-weight: bold;
+            text-align: center;
+            margin-top: auto; /* Pushes to the bottom */
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 id="main-title">Σχολικό Ημερολόγιο 2025-2026</h1>
+        <p class="credit-line">Δημιουργία: Παναγιώτης Δόμβρος, Εκπαιδευτικός Αγγλικής - Θεατρολόγος</p>
+
+        <div class="header-controls">
+            <label for="year-select">Επιλογή Σχολικού Έτους:</label>
+            <select id="year-select"></select>
+        </div>
+
+        <div class="main-content">
+            <div class="calendar-grid" id="calendar-grid">
+                </div>
+            <div class="sidebar" id="sidebar">
+                </div>
+        </div>
+
+        <div class="footer">
+            ✨✍️ Δημιουργία: Παναγιώτης Δόμβρος, Εκπαιδευτικός Αγγλικής - Θεατρολόγος ✍️✨
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const yearSelect = document.getElementById('year-select');
+            const calendarGrid = document.getElementById('calendar-grid');
+            const sidebar = document.getElementById('sidebar');
+            const mainTitle = document.getElementById('main-title');
+            const weekDays = ['ΔΕΥ', 'ΤΡ', 'ΤΕΤ', 'ΠΕ', 'ΠΑΡ', 'ΣΑΒ', 'ΚΥΡ'];
+            const monthNames = ['ΙΑΝΟΥΑΡΙΟΣ', 'ΦΕΒΡΟΥΑΡΙΟΣ', 'ΜΑΡΤΙΟΣ', 'ΑΠΡΙΛΙΟΣ', 'ΜΑΪΟΣ', 'ΙΟΥΝΙΟΣ', 'ΙΟΥΛΙΟΣ', 'ΑΥΓΟΥΣΤΟΣ', 'ΣΕΠΤΕΜΒΡΙΟΣ', 'ΟΚΤΩΒΡΙΟΣ', 'ΝΟΕΜΒΡΙΟΣ', 'ΔΕΚΕΜΒΡΙΟΣ'];
+            
+            function getOrthodoxEaster(year) {
+                const a = year % 19;
+                const b = year % 7;
+                const c = year % 4;
+                const d = (19 * a + 16) % 30;
+                const e = (2 * c + 4 * b + 6 * d) % 7;
+                const f = (19 * a + 16) % 30;
+                let key = f + e + 3;
+                let month = (key > 30) ? 5 : 4;
+                let day = (key > 30) ? key - 30 : key;
+                return new Date(year, month - 1, day);
+            }
+
+            function formatDateKey(date) {
+                return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+            }
+            
+            function getSchoolYearData(startYear) {
+                const endYear = startYear + 1;
+                const dates = {};
+                const easter = getOrthodoxEaster(endYear);
+                const cleanMonday = new Date(easter);
+                cleanMonday.setDate(easter.getDate() - 48);
+                const goodFriday = new Date(easter);
+                goodFriday.setDate(easter.getDate() - 2);
+                const holySpiritMonday = new Date(easter);
+                holySpiritMonday.setDate(easter.getDate() + 50);
+
+                const addDate = (date, type) => { dates[formatDateKey(date)] = type; };
+                
+                let agiasmosDate = new Date(startYear, 8, 11);
+                const agiasmosDayOfWeek = agiasmosDate.getDay();
+                if (agiasmosDayOfWeek === 6) {
+                    agiasmosDate.setDate(agiasmosDate.getDate() + 2);
+                } else if (agiasmosDayOfWeek === 0) {
+                    agiasmosDate.setDate(agiasmosDate.getDate() + 1);
+                }
+                addDate(agiasmosDate, 'special-day');
+
+                addDate(new Date(startYear, 9, 26), 'note-day'); // NEW: St. Demetrius
+                addDate(new Date(startYear, 9, 28), 'holiday');
+                addDate(new Date(startYear, 11, 25), 'holiday');
+                addDate(new Date(startYear, 11, 26), 'holiday');
+                addDate(new Date(endYear, 0, 1), 'holiday');
+                addDate(new Date(endYear, 0, 6), 'holiday');
+                addDate(new Date(endYear, 2, 25), 'holiday');
+                addDate(new Date(endYear, 4, 1), 'holiday');
+                addDate(new Date(endYear, 7, 15), 'holiday');
+
+                addDate(cleanMonday, 'holiday');
+                addDate(goodFriday, 'holiday');
+                addDate(holySpiritMonday, 'holiday');
+
+                addDate(new Date(startYear, 9, 27), 'special-day');
+                addDate(new Date(startYear, 10, 17), 'special-day');
+                addDate(new Date(endYear, 0, 30), 'special-day');
+                addDate(new Date(endYear, 2, 24), 'special-day');
+                addDate(new Date(endYear, 5, 15), 'special-day');
+                
+                for (let d = 24; d <= 31; d++) addDate(new Date(startYear, 11, d), 'holiday');
+                for (let d = 1; d <= 7; d++) addDate(new Date(endYear, 0, d), 'holiday');
+                
+                const easterBreakStart = new Date(easter);
+                easterBreakStart.setDate(easter.getDate() - 8);
+                const easterBreakEnd = new Date(easter);
+                easterBreakEnd.setDate(easter.getDate() + 7);
+                for (let d = new Date(easterBreakStart); d <= easterBreakEnd; d.setDate(d.getDate() + 1)) {
+                    const key = formatDateKey(new Date(d));
+                    if (!dates[key]) {
+                       dates[key] = 'holiday';
+                    }
+                }
+                
+                addDate(new Date(endYear, 5, 30), 'note-day');
+
+                return { dates, easter, cleanMonday, holySpiritMonday, agiasmosDate };
+            }
+
+            function generateFullCalendar(startYear) {
+                calendarGrid.innerHTML = '';
+                const yearData = getSchoolYearData(startYear);
+
+                for (let i = 0; i < 12; i++) {
+                    const monthIndex = (8 + i) % 12;
+                    const year = (monthIndex >= 8) ? startYear : startYear + 1;
+                    
+                    const firstDayOfMonth = new Date(year, monthIndex, 1);
+                    const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+                    let startDayOfWeek = firstDayOfMonth.getDay();
+                    if (startDayOfWeek === 0) startDayOfWeek = 7;
+
+                    const monthContainer = document.createElement('div');
+                    monthContainer.className = 'month-container';
+                    
+                    const table = document.createElement('table');
+                    table.className = 'month-table';
+                    table.innerHTML = `<caption>${monthNames[monthIndex]} ${year}</caption>`;
+                    
+                    const thead = document.createElement('thead');
+                    let tr = document.createElement('tr');
+                    weekDays.forEach(day => {
+                        tr.innerHTML += `<th>${day}</th>`;
+                    });
+                    thead.appendChild(tr);
+                    table.appendChild(thead);
+
+                    const tbody = document.createElement('tbody');
+                    let date = 1;
+                    for (let r = 0; r < 6; r++) {
+                        if (date > daysInMonth) break;
+                        let row = document.createElement('tr');
+                        for (let d = 1; d <= 7; d++) {
+                            let cell = document.createElement('td');
+                            if ((r === 0 && d < startDayOfWeek) || date > daysInMonth) {
+                                cell.classList.add('empty');
+                                cell.innerHTML = '&nbsp;';
+                            } else {
+                                cell.innerText = date;
+                                const currentDate = new Date(year, monthIndex, date);
+                                const dateKey = formatDateKey(currentDate);
+                                
+                                if (yearData.dates[dateKey]) {
+                                    cell.classList.add(yearData.dates[dateKey]);
+                                }
+                                if (d === 6) cell.classList.add('saturday');
+                                if (d === 7) {
+                                    cell.classList.add('sunday');
+                                    cell.classList.add('saturday');
+                                }
+                                date++;
+                            }
+                            row.appendChild(cell);
+                        }
+                        tbody.appendChild(row);
+                    }
+                    table.appendChild(tbody);
+                    monthContainer.appendChild(table);
+                    calendarGrid.appendChild(monthContainer);
+                }
+            }
+            
+            function updateSidebar(startYear) {
+                const endYear = startYear + 1;
+                const { easter, cleanMonday, holySpiritMonday, agiasmosDate } = getSchoolYearData(startYear);
+                const formatDate = (d) => `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+
+                sidebar.innerHTML = `
+                    <div class="sidebar-content">
+                        <div class="sidebar-legend">
+                            <div class="legend-item"><span class="color-box box-forest-green"></span><span>Εκδήλωση / Γιορτή</span></div>
+                            <div class="legend-item"><span class="color-box box-red"></span><span>Αργία</span></div>
+                            <div class="legend-item"><span class="color-box box-royal-blue"></span><span>Ενδιαφέρουσα Σημείωση</span></div>
+                        </div>
+                        <p><span class="color-dot dot-forest-green"></span><strong>Αγιασμός:</strong> ${formatDate(agiasmosDate)}</p>
+                        <p><span class="color-dot dot-royal-blue"></span><strong>Αγ. Δημητρίου:</strong> 26/10/${startYear} (τοπική)</p>
+                        <p><span class="color-dot dot-forest-green"></span><strong>Γιορτή 28ης Οκτ.:</strong> 27/10/${startYear}</p>
+                        <p><span class="color-dot dot-red"></span><strong>Επέτειος 28ης Οκτ.:</strong> 28/10/${startYear}</p>
+                        <p><span class="color-dot dot-forest-green"></span><strong>Εξέγερση Πολυτεχνείου:</strong> 17/11/${startYear}</p>
+                        <p><span class="color-dot dot-red"></span><strong>Διακοπές Χριστουγέννων:</strong> 24/12/${startYear} - 7/1/${endYear}</p>
+                        <p><span class="color-dot dot-forest-green"></span><strong>Τριών Ιεραρχών (γιορτή):</strong> 30/1/${endYear}</p>
+                        <p><span class="color-dot dot-red"></span><strong>Καθαρά Δευτέρα:</strong> ${formatDate(cleanMonday)}</p>
+                        <p><span class="color-dot dot-forest-green"></span><strong>Γιορτή 25ης Μαρτ.:</strong> 24/3/${endYear}</p>
+                        <p><span class="color-dot dot-red"></span><strong>Επέτειος 25ης Μαρτ.:</strong> 25/3/${endYear}</p>
+                        <p><span class="color-dot dot-red"></span><strong>Διακοπές Πάσχα:</strong> (Περίοδος ${formatDate(easter)})</p>
+                        <p><span class="color-dot dot-royal-blue"></span><strong>Κυριακή του Πάσχα:</strong> ${formatDate(easter)}</p>
+                        <p><span class="color-dot dot-red"></span><strong>Πρωτομαγιά:</strong> 1/5/${endYear}</p>
+                        <p><span class="color-dot dot-red"></span><strong>Αγίου Πνεύματος:</strong> ${formatDate(holySpiritMonday)}</p>
+                        <p><span class="color-dot dot-forest-green"></span><strong>Λήξη μαθημάτων:</strong> 15/6/${endYear}</p>
+                        <p><span class="color-dot dot-royal-blue"></span><strong>Λήξη σχολ. έτους:</strong> 30/6/${endYear}</p>
+
+                    <p class="flashing-text">Επιπλέον αργίες τις ημέρες των εορτασμών των τοπικών πολιούχων Αγίων</p>
+                `;
+            }
+
+            for (let i = 0; i < 11; i++) {
+                const year = 2025 + i;
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = `${year}-${year + 1}`;
+                yearSelect.appendChild(option);
+            }
+
+            function updateDisplay(year) {
+                mainTitle.textContent = `Σχολικό Ημερολόγιο ${year}-${year + 1}`;
+                generateFullCalendar(year);
+                updateSidebar(year);
+            }
+
+            yearSelect.addEventListener('change', function() {
+                updateDisplay(parseInt(this.value));
+            });
+
+            updateDisplay(parseInt(yearSelect.value));
+        });
+    </script>
+
+</body>
+</html>
