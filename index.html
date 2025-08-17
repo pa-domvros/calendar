@@ -5,36 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Δυναμικό Σχολικό Ημερολόγιο</title>
     <style>
+        :root {
+            --font-main: Georgia, serif;
+            --cinnamon: #A0522D;
+            --deep-cinnamon: #8B4513;
+            --gold: #DAA520;
+            --beige-light: #F5F5DC;
+            --beige-dark: #EAE0C8;
+            --text-light: #FFFFFF;
+            --text-dark: #333333;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #e0e0e0;
+            font-family: var(--font-main);
+            background-color: var(--beige-light);
+            color: var(--text-dark);
             margin: 0;
-            padding: 20px;
+            padding: 10px;
         }
 
         .container {
             max-width: 1400px;
             margin: auto;
-            border: 3px solid #003366;
+            border: 3px solid var(--cinnamon);
             padding: 10px;
             background-color: #fff;
         }
 
+        .title-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--cinnamon);
+            color: var(--text-light);
+            gap: 15px;
+        }
+
+        #title-thumbnail {
+            height: 40px;
+            width: auto;
+            border-radius: 8px;
+        }
+
         h1 {
-            background-color: #003366;
-            color: white;
-            text-align: center;
             padding: 10px 0;
-            margin: 0 0 5px 0;
-            font-size: 1.8em;
-            letter-spacing: 2px;
+            margin: 0;
+            font-size: 1.5em;
+            letter-spacing: 1px;
+            text-align: center;
         }
         
         .credit-line {
             text-align: center;
             font-style: italic;
             color: #555;
-            margin: 0 0 15px 0;
+            margin: 5px 0 15px 0;
             font-size: 0.9em;
         }
 
@@ -43,53 +68,44 @@
             margin-bottom: 15px;
         }
 
-        .header-controls label {
-            font-weight: bold;
-            margin-right: 10px;
-        }
-
         #year-select {
             padding: 5px;
             font-size: 1em;
             border-radius: 5px;
             border: 1px solid #ccc;
+            font-family: var(--font-main);
         }
 
         .main-content {
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+            flex-direction: column;
+            gap: 15px;
         }
 
         .calendar-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 10px;
-            flex: 3;
-            min-width: 70%;
-        }
-
-        .month-container {
-            border: 1px solid #666;
         }
 
         .month-table {
             border-collapse: collapse;
             width: 100%;
-            font-size: 0.85em;
+            font-size: 0.82em; /* Slightly reduced font size for more space */
             text-align: center;
+            table-layout: fixed; /* CRITICAL FIX: Ensures all columns align perfectly */
         }
 
         .month-table caption {
-            background-color: #005a9c;
-            color: white;
+            background-color: var(--cinnamon);
+            color: var(--text-light);
             font-weight: bold;
             padding: 5px;
             font-size: 1.1em;
         }
 
         .month-table th {
-            background-color: #bde0fe;
+            background-color: var(--beige-dark);
             padding: 5px;
             border: 1px solid #999;
             font-weight: bold;
@@ -102,117 +118,75 @@
             vertical-align: middle;
         }
         
-        td.empty {
-            background-color: #f8f8f8;
-        }
-
-        td.saturday {
-            background-color: #f2f2f2;
-        }
-
-        td.sunday {
-            /* Style is handled by adding the .saturday class */
-        }
-        
-        td.holiday {
-            background-color: #ff0000;
-            color: white;
-            font-weight: bold;
-        }
-
-        td.special-day {
-            background-color: #228B22;
-            color: white;
-        }
-
-        td.note-day {
-            background-color: #4169E1;
-            color: white;
-        }
+        td.empty { background-color: #f8f8f8; }
+        td.saturday, td.sunday { background-color: var(--beige-dark); }
+        td.holiday { background-color: var(--deep-cinnamon); color: var(--text-light); font-weight: bold; }
+        td.special-day { background-color: var(--gold); color: var(--text-light); }
+        td.note-day { background-color: #D27D2D; color: var(--text-light); }
 
         .sidebar {
-            flex: 1;
-            min-width: 280px;
             border: 1px solid #666;
             padding: 10px;
-            font-size: 0.8em;
-            line-height: 1.4;
-            background-color: #f9f9f9;
+            font-size: 0.9em;
+            line-height: 1.5;
+            background-color: #fdfdf5;
             display: flex;
             flex-direction: column;
-        }
-
-        .sidebar-content {
-            flex-grow: 1;
-        }
-
-        .sidebar-legend {
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #ccc;
+            word-break: break-word;
         }
         
-        .sidebar-legend .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 5px;
+        @media (min-width: 800px) {
+            h1 { font-size: 1.8em; }
+            .main-content {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+            .calendar-grid {
+                flex: 1 1 auto;
+            }
+            .sidebar {
+                flex: 0 0 280px;
+                font-size: 0.78em;
+                line-height: 1.4;
+            }
         }
 
-        .sidebar-legend .color-box {
-            width: 15px;
-            height: 15px;
-            border: 1px solid #000;
-            flex-shrink: 0;
+        @media (min-width: 1200px) {
+            .calendar-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .sidebar {
+                flex: 0 0 320px;
+            }
         }
+
+        .sidebar-content { flex-grow: 1; }
+        .sidebar-legend { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #ccc; }
+        .sidebar-legend .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+        .sidebar-legend .color-box { width: 15px; height: 15px; border: 1px solid #000; flex-shrink: 0; }
+        .sidebar p { margin: 5px 0; display: flex; align-items: center; }
+        .color-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-right: 8px; }
         
-        .sidebar p {
-            margin: 5px 0;
-            display: flex;
-            align-items: center;
-        }
+        .box-red { background-color: var(--deep-cinnamon); }
+        .box-forest-green { background-color: var(--gold); }
+        .box-royal-blue { background-color: #D27D2D; }
+        .dot-red { background-color: var(--deep-cinnamon); }
+        .dot-forest-green { background-color: var(--gold); }
+        .dot-royal-blue { background-color: #D27D2D; }
 
-        .color-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            flex-shrink: 0;
-            margin-right: 8px;
-        }
+        .footer { margin-top: 10px; border: 1px solid var(--cinnamon); padding: 15px; font-size: 1.1em; text-align: center; font-weight: bold; color: var(--text-dark); }
         
-        .dot-red, .box-red { background-color: #ff0000; }
-        .dot-forest-green, .box-forest-green { background-color: #228B22; }
-        .dot-royal-blue, .box-royal-blue { background-color: #4169E1; }
-
-        .footer {
-            margin-top: 10px;
-            border: 1px solid #666;
-            padding: 15px;
-            font-size: 1.1em;
-            text-align: center;
-            font-weight: bold;
-            color: #333;
-        }
-        
-        /* NEW: Flashing text animation */
-        @keyframes flash {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.2; }
-        }
-
-        .flashing-text {
-            animation: flash 2s infinite;
-            font-weight: bold;
-            text-align: center;
-            margin-top: auto; /* Pushes to the bottom */
-            padding-top: 15px;
-        }
+        @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+        .flashing-text { animation: flash 2s infinite; font-weight: bold; text-align: center; margin-top: auto; padding-top: 15px; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1 id="main-title">Σχολικό Ημερολόγιο 2025-2026</h1>
+        <div class="title-header">
+            <img src="calendar.png" alt="Calendar Icon" id="title-thumbnail">
+            <h1 id="main-title">Σχολικό Ημερολόγιο 2025-2026</h1>
+        </div>
         <p class="credit-line">Δημιουργία: Παναγιώτης Δόμβρος, Εκπαιδευτικός Αγγλικής - Θεατρολόγος</p>
 
         <div class="header-controls">
@@ -280,7 +254,7 @@
                 }
                 addDate(agiasmosDate, 'special-day');
 
-                addDate(new Date(startYear, 9, 26), 'note-day'); // NEW: St. Demetrius
+                addDate(new Date(startYear, 9, 26), 'note-day');
                 addDate(new Date(startYear, 9, 28), 'holiday');
                 addDate(new Date(startYear, 11, 25), 'holiday');
                 addDate(new Date(startYear, 11, 26), 'holiday');
@@ -410,7 +384,7 @@
                         <p><span class="color-dot dot-red"></span><strong>Αγίου Πνεύματος:</strong> ${formatDate(holySpiritMonday)}</p>
                         <p><span class="color-dot dot-forest-green"></span><strong>Λήξη μαθημάτων:</strong> 15/6/${endYear}</p>
                         <p><span class="color-dot dot-royal-blue"></span><strong>Λήξη σχολ. έτους:</strong> 30/6/${endYear}</p>
-
+                    </div>
                     <p class="flashing-text">Επιπλέον αργίες τις ημέρες των εορτασμών των τοπικών πολιούχων Αγίων</p>
                 `;
             }
